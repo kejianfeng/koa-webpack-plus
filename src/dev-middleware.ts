@@ -1,8 +1,7 @@
 //@ts-nocheck
-const wdm  = require('webpack-dev-middleware')
+import wdm from'webpack-dev-middleware'
 export default (compiler, option) =>  {
   const expressMiddleware = wdm(compiler, option);
-
   async function koaMiddleware(ctx, next) {
     const { req } = ctx;
     const locals = ctx.locals || ctx.state;

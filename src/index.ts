@@ -1,26 +1,13 @@
-// import { join } from "path";
-
-const {join}  = require('path')
-const root = require('app-root-path')
-// import  root from "app-root-path";
-
-const chalk = require('chalk')
-// import  chalk from "chalk";
+import { join } from "path";
+import * as root from "app-root-path";
+import  chalk from "chalk";
 import  webpack, {Configuration, HotModuleReplacementPlugin} from "webpack";
 import  ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import  { merge }  from 'webpack-merge';
-
-// const webpack = require('webpack')
-// import  compose from "koa-compose";
-
-const compose = require('koa-compose')
-
+import  compose from "koa-compose";
 import getDevMiddleware from "./dev-middleware"
 import getHotMiddleware from "./hot-middleware"
 import { validate } from "./tool"
-
-
-
 
 const defaults = { devMiddleware: {}, hotMiddleware: {} };
 
@@ -56,6 +43,8 @@ interface IOptions {
   hotMiddleware?: IHotMiddleware;
   [key: string]: any;
 }
+
+type IEntry = string | string[] | Record<string, string | string[]>
 export default async (opts: IOptions) => {
   const valid = validate(opts);
 
@@ -82,13 +71,12 @@ export default async (opts: IOptions) => {
     );
     return
   }
-
   /**
    * 用于往入口文件添加hot-middleware文件
    * @param entry 入口文件
    */
-  const addHotMiddlewareEntry = (entry: string | string[] | {[key: string]:any}) => {
-    const entryType = Object.prototype.toString.apply(entry)
+  const addHotMiddlewareEntry = (entry: IEntry) => {
+    const entryType:string = Object.prototype.toString.apply(entry)
     switch (entryType) {
       case '[object String]':
         webpackConfig.entry = [ 'webpack-hot-middleware/client', entry as string]
@@ -115,8 +103,8 @@ export default async (opts: IOptions) => {
     }
   }
   //添加入口热更新文件
-  addHotMiddlewareEntry(webpackConfig.entry as string | string[] | {[key: string]:any})
-  const finalConfig = merge(webpackConfig, {
+  addHotMiddlewareEntry(webpackConfig.entry as IEntry)
+  const finalConfig:Configuration = merge(webpackConfig, {
     mode:'development',
     watch:true,
     plugins: [
